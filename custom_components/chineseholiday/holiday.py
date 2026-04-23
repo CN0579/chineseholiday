@@ -207,6 +207,7 @@ class Holiday:
         """返回最近若干次法定节假日的结构化放假安排。"""
         today = self.today()
         details = []
+        seen_periods: set[tuple[str, str]] = set()
         for y in self._holiday_json:
             if y == "update_time":
                 continue
@@ -230,6 +231,10 @@ class Holiday:
 
                 start += timedelta(days=1)
                 end -= timedelta(days=1)
+                period_key = (start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
+                if period_key in seen_periods:
+                    continue
+                seen_periods.add(period_key)
 
                 if diff < min_days and not self._is_in_bridge_window(start, end, today):
                     continue
